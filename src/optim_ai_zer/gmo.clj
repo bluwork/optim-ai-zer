@@ -40,48 +40,86 @@
   [size sol]
   (loop [pop-size size chromosomes []]
     (if (< pop-size 1)
-      chromosomes 
+      (sort-by-fitness chromosomes) 
       (recur (dec pop-size)
              (conj chromosomes (generate-chromosome! sol))))))
 
 
-(defn cross-pop
-  [population])
-
-
 (defn mutate-pop
-  [population])
-
-
-(defn evolve-pop
   [population]
-  ((comp mutate crossover) population))
-
-(defn cross-chrom!
-  [one two]
-  (loop [accum 0 crossed-genes []]
-    (if (> accum (dec (count one)))
-      {:fitness (fitness crossed-genes) :genes crossed-genes}
+  (loop [accum 0 mutated-pop []]
+    (if (> accum (dec (count population)))
+      mutated-pop
       (recur (inc accum)
-             (if (= (rand-int 2) 1)
-                             (conj crossed-genes (nth one accum))
-                             (conj crossed-genes (nth two accum)))))))
+             (if (< accum num-of-elite)
+               (conj mutated-pop (nth population accum))
+               (conj mutated-pop (mut-chrom! (nth population accum))))))))
 
 (defn mut-chrom!
   [chromosome]
   (loop [accum 0 mutated-genes []]
-    (if (> accum (dec (count chromosome)))
+    (if (> accum (dec (count (:genes chromosome))))
       {:fitness (fitness mutated-genes) :genes mutated-genes}
       (recur (inc accum)
              (if (< (rand) mutation-rate)
                (conj mutated-genes 1)
-               (conj mutated-genes (nth chromosome accum)))))))
+               (conj mutated-genes (nth (:genes chromosome) accum)))))))
 
-(def chrom1 [1 1 0 1 0 0 1 1 0 1])
-(def chrom2 [1 0 1 0 1 0 1 0 1 0])
+(defn cross-pop
+  [population]
+  (loop [accum 0 crossed-pop []]
+    (if (> accum (dec (count population)))
+      crossed-pop
+      (recur (inc accum)
+             (if (< accum num-of-elite)
+               (conj crossed-pop (nth population accum))
+               (conj crossed-pop (cross-chrom! (first (select-tournament-pop population)) (first (select-tournament-pop population)) )))))))
 
-(cross-chrom! chrom1 chrom2 )
-(fitness chrom1)
-(fitness chrom2)
+(defn evolve-pop
+  [population]
+  (sort-by-fitness ((comp mutate-pop cross-pop) population)))
 
-(mut-chrom! chrom1)
+(evolve-pop  (init-population! 10 sol))
+
+(defn cross-chrom!
+  [one two]
+  (loop [accum 0 crossed-genes []]
+    (if (> accum (dec (count (:genes one))))
+      {:fitness (fitness crossed-genes) :genes crossed-genes}
+      (recur (inc accum)
+             (if (= (rand-int 2) 1)
+                             (conj crossed-genes (nth (:genes one) accum))
+                             (conj crossed-genes (nth (:genes two) accum)))))))
+
+
+
+(defn select-tournament-pop
+  [population]
+  (let [tp-size tournament-selection-size ]
+    (loop [counter tp-size tour-pop []]
+      (if (< counter 1)
+        (sort-by-fitness tour-pop)
+        (recur (dec counter)
+               (conj tour-pop (nth population (rand-int (count population)) )))))))
+
+(select-tournament-pop (init-population! 10 sol))
+
+
+
+
+
+
+(cross-chrom! (first (select-tournament-pop (init-population! 10 sol))) (first (select-tournament-pop (init-population! 10 sol))))
+
+(mut-chrom! {:genes chrom1})
+
+
+(defn find-solution
+  []
+  (loop [population (init-population! 10 sol) generation 0]
+    (if (or (> generation 100000) (= (:fitness (first population)) 10))
+      (str "Solution is find in generation: " generation)
+      (recur (evolve-pop population) (inc generation)))))
+
+
+(find-solution)
