@@ -1,6 +1,6 @@
 (ns ^{:author "BLu"
-      :doc "Genetic algorithm"}
-    optim-ai-zer.gmo)
+      :doc "Genetic algorithm"} optim-ai-zer.gmo
+  (:require [criterium.core :as criterium]))
 
 ;; Solution - target chromosome
 (def sol [1 1 0 1 0 0 1 1 1 0])
@@ -9,7 +9,7 @@
 
 (def tournament-selection-size 3)
 
-(def mutation-rate 0.25)
+(def mutation-rate 0.011)
 
 
 (defn sort-by-fitness
@@ -98,12 +98,24 @@
   (sort-by-fitness ((comp mutate-pop cross-pop) population)))
 
 (defn find-solution
-  []
-  (loop [population (init-population! 10 sol) generation 0]
-    (print (:fitness (first population)))
-    (if (or (> generation 1000) (= (:fitness (first population)) 10))
+  [population]
+  (loop [population population generation 0]
+    (if (or (> generation 10000) (= (:fitness (first population)) 10))
       (str "Solution is find in generation: "  generation)
       (recur (evolve-pop population) (inc generation)))))
 
 
-(find-solution)
+(time (find-solution (init-population! 15 sol)))
+
+;; Knapsack Problem
+
+(def survival-set [{:name "pocketknife" :sur-points 10 :weight 1}
+                   {:name "beans" :sur-points 20 :weight 5}
+                   {:name "potatoes" :sur-points 15 :weight 10}
+                   {:name "unions" :sur-points 2 :weight 1}
+                   {:name "sleeping bag" :sur-points 30 :weight 7}
+                   {:name "rope" :sur-points 10 :weight 5}
+                   {:name "compass" :sur-points 30 :weight 1}])
+
+(def weight-limit 20)
+

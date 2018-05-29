@@ -74,7 +74,6 @@
   [cities init-temp cooling-rate]
   (let [init-sol cities best-solution (atom cities)]
     (loop [temp init-temp solution init-sol]
-      (println (ttd solution))
       (if (< (ttd solution) (ttd (deref best-solution))) (reset! best-solution solution))
       (if (< temp 1)
         (str "Final solution distance: " (ttd (deref best-solution)) "Tour: " (deref best-solution) )
@@ -84,5 +83,3 @@
                                                solution)))))))
 
 
-
-(time (simulate-annealing! (shuffle cities) 100000 0.003))
