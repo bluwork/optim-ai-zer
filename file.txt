@@ -1,1 +1,0 @@
-{"look" 1, "duck" 4, "swim" 1, "quack" 1, "probabl" 1}

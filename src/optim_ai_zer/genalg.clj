@@ -1,5 +1,5 @@
 (ns ^{:author "BLu"
-      :doc "Genetic algorithm"} optim-ai-zer.gmo
+      :doc "Genetic algorithm"} optim-ai-zer.genalg
   (:require [criterium.core :as criterium]))
 
 ;; Solution - target chromosome
