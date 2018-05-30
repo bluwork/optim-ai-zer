@@ -1,7 +1,6 @@
-(ns optim-ai-zer.feed
+(ns optim-ai-zer.prep.feed
   (:import [org.jsoup Jsoup])
   (:require [clojure.java.io :as io]
-            [optim-ai-zer.corpus :as corpus]
             [feedparser-clj.core :as feedp]
             [clojure.string :as cstr]))
 
@@ -46,9 +45,6 @@
 (defn article-body
   [link selector]
   (.text (.select (get-body link) selector)))
-
-
-(corpus/get-frequencies (article-body (random-link! reuters-science-feed) selector-reuters))
 
 (defn r-article!
   [link provider]

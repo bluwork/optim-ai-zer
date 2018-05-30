@@ -3,7 +3,7 @@
             Strength is that it avoids getting caught at local max
             local-max - solution that is better than any others nearby, but
             isn't the very best."}
-    optim-ai-zer.simann)
+    optim-ai-zer.algos.simann)
 
 ;; 1. Generate random solution
 

@@ -1,5 +1,5 @@
 (ns ^{:author "BLu"
-      :doc "Genetic algorithm"} optim-ai-zer.genalg)
+      :doc "Genetic algorithm"} optim-ai-zer.algos.genalg)
 
 ;; Solution - target chromosome
 (def sol [1 1 0 1 0 0 1 1 1 0])

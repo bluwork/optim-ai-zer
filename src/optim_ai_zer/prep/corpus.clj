@@ -1,6 +1,6 @@
-(ns optim-ai-zer.corpus
+(ns optim-ai-zer.prep.corpus
   (:require [peco.core :refer [tokenizer]]
-            [optim-ai-zer.feed :as f]))
+            [optim-ai-zer.prep.feed :as f]))
 
 (def tokenize (tokenizer [:lower-case :remove-numbers :porter-stem :remove-stop-words]))
 
@@ -12,7 +12,7 @@
                     :robotics "https://news.mit.edu/rss/topic/robotics"
                     :science "https://news.mit.edu/rss/topic/science-technology-and-society"}
               :fast-ml {:all "http://fastml.com/atom.xml"}
-              :ai-trends {:all "https://aitrends.com/feed/"}}})
+              :ai-trends {:all "https://aitrends.com/feed/"}})
 
 (defn get-frequencies
   [text]
@@ -27,13 +27,13 @@
        (sort-by val >)))
   ;(sort-by val > (filter #(> (val %) repetition) (get-frequencies text))))
 
-(pos-keywords (f/r-article! ((comp :science :bbc) rss-links) :bbc) 2)
+; (f/r-article! ((comp :science :bbc) rss-links) :bbc)
 
 
-(pos-keywords (f/r-article! ((comp :ml :mit) rss-links) :mit) 2)
+; (f/r-article! ((comp :ml :mit) rss-links) :mit)
 
-(pos-keywords (f/r-article! ((comp :all :ai-trends) rss-links) :ai-trends) 3)
+; (f/r-article! ((comp :all :ai-trends) rss-links) :ai-trends)
 
-(pos-keywords (f/r-article! ((comp :all :fast-ml) rss-links) :fast-ml) 1)
+; (f/r-article! ((comp :all :fast-ml) rss-links) :fast-ml)
 
 
