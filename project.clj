@@ -4,4 +4,6 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.9.0"]
-                 [peco "0.1.5"]])
+                 [peco "0.1.5"]
+                 [org.clojars.gnzh/feedparser-clj "0.6.0"]
+                 [org.jsoup/jsoup "1.11.3"]])

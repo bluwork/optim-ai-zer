@@ -1,6 +1,5 @@
 (ns ^{:author "BLu"
-      :doc "Genetic algorithm"} optim-ai-zer.genalg
-  (:require [criterium.core :as criterium]))
+      :doc "Genetic algorithm"} optim-ai-zer.genalg)
 
 ;; Solution - target chromosome
 (def sol [1 1 0 1 0 0 1 1 1 0])
@@ -33,8 +32,6 @@
     {:fitness (fitness genes) :genes genes}))
 
 ;; Population initialization
-
-
 
 (defn init-population!
   [size sol]
@@ -119,3 +116,6 @@
 
 (def weight-limit 20)
 
+(defn survival-cost-f
+  []
+  :survival)

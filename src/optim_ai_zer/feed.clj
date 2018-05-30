@@ -1,21 +1,56 @@
 (ns optim-ai-zer.feed
-  (:require [clojure.xml :as parser]
-            [clojure.java.io :as io]
-            [optim-ai-zer.stemming :as st]))
+  (:import [org.jsoup Jsoup])
+  (:require [clojure.java.io :as io]
+            [optim-ai-zer.corpus :as corpus]
+            [feedparser-clj.core :as feedp]
+            [clojure.string :as cstr]))
 
-(defrecord Feed [title link description language copyright pub-date])
-(defrecord FeedMessage [title description link author guid])
-(spit "blubber.txt" "testing doc writing")
-(slurp "blubber.txt")
 
-(slurp "http://clojuredocs.org")
-(slurp "http://www.example.com")
-(slurp "https://feeds.bbci.co.uk/news/rss.xml")
+(def selector-bbc "[property=articleBody] p")
+(def selector-reuters "p")
 
-(parser/parse (slurp "https://feeds.bbci.co.uk/news/rss.xml"))
-(parser/parse (io/input-stream "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml"))
+(defn selector
+  [provider]
+  (cond 
+    (= provider :reuters) "p"
+    (= provider :bbc) "[property=articleBody] p"
+    :else "p"))
 
-(st/get-frequencies "If it looks like a duck, swims like a duck, and quacks like a duck, then it probably is a duck. ")
-(spit "file.txt" (st/get-frequencies "If it looks like a duck, swims like a duck, and quacks like a duck, then it probably is a duck. "))
-(slurp "file.txt")
-(spit "only-xml.txt"(slurp "https://feeds.bbci.co.uk/news/rss.xml"))
+(defn feed
+  [address]
+  (feedp/parse-feed (io/input-stream address)))
+
+
+
+(defn links
+  [feed]
+  (map #(:link %) (:entries feed)))
+
+(defn random-link!
+  [feed]
+  (let [links (map #(:link %) (:entries feed))]
+    (nth links (rand-int (count links)))))
+
+(defn get-doc
+  [link]
+  (.get (Jsoup/connect link)))
+
+(defn get-title
+  [link]
+  (.title (get-doc link)))
+
+(defn get-body
+  [link]
+  (.body (get-doc link)))
+
+(defn article-body
+  [link selector]
+  (.text (.select (get-body link) selector)))
+
+
+(corpus/get-frequencies (article-body (random-link! reuters-science-feed) selector-reuters))
+
+(defn r-article!
+  [link provider]
+  (let [feed (feed link)]
+    (article-body (random-link! feed) (selector provider))))
