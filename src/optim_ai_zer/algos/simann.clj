@@ -49,26 +49,17 @@
                            (+ distance (u/euclidian-dist (nth tour accum) (first tour)))
                            (+ distance (u/euclidian-dist (nth tour accum) (nth tour (inc accum)))))))))
 
-(defn swap-cities!
-  "Swap two random cities"
-  [cities]
-  (loop [pos1 (rand-int (count cities)) pos2 (rand-int (count cities))]
-    (if (= pos1 pos2)
-      (recur pos1 (rand-int (count cities)))
-      (assoc (assoc cities pos1 (nth cities pos2)) pos2 (nth cities pos1)))))
-
-
 (defn simulate-annealing!
   ([cities] (simulate-annealing! cities 10000 0.003))
   ([cities init-temp cooling-rate]
-  (let [init-sol cities best-solution (atom cities)]
-    (loop [temp init-temp solution init-sol]
-      (if (< (ttd solution) (ttd (deref best-solution))) (reset! best-solution solution))
-      (if (< temp 1)
-        (str "Final solution distance: " (ttd (deref best-solution)) "Tour: " (deref best-solution) )
-        (recur (* temp (- 1 cooling-rate)) (let [new-solution (swap-cities! solution)]
-                                             (if (> (acceptance-probability (ttd solution) (ttd new-solution) temp) (rand))
-                                               new-solution
-                                               solution))))))))
-;(simulate-annealing! cities 1000 0.003)
+   (let [init-sol cities best-solution (atom cities)]
+     (loop [temp init-temp solution init-sol]
+       (if (< (ttd solution) (ttd (deref best-solution))) (reset! best-solution solution))
+       (if (< temp 1)
+         (str "Final solution distance: " (ttd (deref best-solution)) "Tour: " (deref best-solution) )
+         (recur (* temp (- 1 cooling-rate)) (let [new-solution (u/r-swap-val! solution)]
+                                              (if (> (acceptance-probability (ttd solution) (ttd new-solution) temp) (rand))
+                                                new-solution
+                                                solution))))))))
+;(time (simulate-annealing! cities 5000 0.003))
 

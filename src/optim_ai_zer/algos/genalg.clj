@@ -1,23 +1,14 @@
 (ns ^{:author "BLu"
       :doc "Genetic algorithm"} optim-ai-zer.algos.genalg)
 
-;; Solution - target chromosome
-(def sol [1 1 0 1 0 0 1 1 1 0])
 
-(def num-of-elite 1)
-
-(def tournament-selection-size 3)
-
-(def mutation-rate 0.011)
-
-
-(defn sort-by-fitness
+(defn by-fitness
   [chromosomes]
   (sort-by :fitness #(> %1 %2) chromosomes))
 
 
 (defn fitness
-  [chromosome]
+  [chromosome sol]
   (loop [len (count chromosome) fitness 0]
     (if (< len 1)
       fitness
@@ -26,10 +17,10 @@
                (inc fitness)
                fitness)))))
 
-(defn generate-chromosome!
-  [solution]
-  (let [genes (vec (take (count solution) (repeatedly #(rand-int 2))))]
-    {:fitness (fitness genes) :genes genes}))
+(defn gen-chrom!
+  [sol]
+  (let [genes (vec (take (count sol) (repeatedly #(rand-int 2))))]
+    {:fitness (fitness genes sol) :genes genes}))
 
 ;; Population initialization
 
@@ -37,85 +28,75 @@
   [size sol]
   (loop [pop-size size chromosomes []]
     (if (< pop-size 1)
-      (sort-by-fitness chromosomes) 
+      (by-fitness chromosomes) 
       (recur (dec pop-size)
-             (conj chromosomes (generate-chromosome! sol))))))
+             (conj chromosomes (gen-chrom! sol))))))
 
 (defn mut-chrom!
-  [chromosome]
+  ([chromosome sol] (mut-chrom! chromosome sol 0.01))
+  ([chromosome sol mutation-rate]
   (loop [accum 0 mutated-genes []]
     (if (> accum (dec (count (:genes chromosome))))
-      {:fitness (fitness mutated-genes) :genes mutated-genes}
+      {:fitness (fitness mutated-genes sol) :genes mutated-genes}
       (recur (inc accum)
              (if (< (rand) mutation-rate)
                (conj mutated-genes 1)
-               (conj mutated-genes (nth (:genes chromosome) accum)))))))
+               (conj mutated-genes (nth (:genes chromosome) accum))))))))
 
 (defn mutate-pop
-  [population]
+  ([population sol] (mutate-pop population sol 1))
+  ([population sol num-of-elite]
   (loop [accum 0 mutated-pop []]
     (if (> accum (dec (count population)))
       mutated-pop
       (recur (inc accum)
              (if (< accum num-of-elite)
                (conj mutated-pop (nth population accum))
-               (conj mutated-pop (mut-chrom! (nth population accum))))))))
+               (conj mutated-pop (mut-chrom! (nth population accum) sol))))))))
 
 (defn cross-chrom!
-  [one two]
+  [one two sol]
   (loop [accum 0 crossed-genes []]
     (if (> accum (dec (count (:genes one))))
-      {:fitness (fitness crossed-genes) :genes crossed-genes}
+      {:fitness (fitness crossed-genes sol) :genes crossed-genes}
       (recur (inc accum)
              (if (= (rand-int 2) 1)
                (conj crossed-genes (nth (:genes one) accum))
                (conj crossed-genes (nth (:genes two) accum)))))))
 
-(defn select-tournament-pop
-  [population]
-  (let [tp-size tournament-selection-size ]
-    (loop [counter tp-size tour-pop []]
+(defn tournament-pop
+  ([popul] (tournament-pop popul 3))
+  ([popul ts-size]
+   (loop [counter ts-size tour-pop []]
       (if (< counter 1)
-        (sort-by-fitness tour-pop)
+        (first (by-fitness tour-pop))
         (recur (dec counter)
-               (conj tour-pop (nth population (rand-int (count population)) )))))))
+               (conj tour-pop (nth popul (rand-int (count popul)) )))))))
 
 (defn cross-pop
-  [population]
+  ([popul sol ] (cross-pop popul sol 1))
+  ([popul sol num-of-elite]
   (loop [accum 0 crossed-pop []]
-    (if (> accum (dec (count population)))
+    (if (> accum (dec (count popul)))
       crossed-pop
       (recur (inc accum)
              (if (< accum num-of-elite)
-               (conj crossed-pop (nth population accum))
-               (conj crossed-pop (cross-chrom! (first (select-tournament-pop population)) (first (select-tournament-pop population)) )))))))
+               (conj crossed-pop (nth popul accum))
+               (conj crossed-pop (cross-chrom! (tournament-pop popul) (tournament-pop popul) sol))))))))
 
 (defn evolve-pop
-  [population]
-  (sort-by-fitness ((comp mutate-pop cross-pop) population)))
+  [popul sol]
+  (by-fitness (mutate-pop (cross-pop popul sol) sol)))
 
 (defn find-solution
-  [population]
-  (loop [population population generation 0]
-    (if (or (> generation 10000) (= (:fitness (first population)) 10))
-      (str "Solution is find in generation: "  generation)
-      (recur (evolve-pop population) (inc generation)))))
+  [popul sol]
+  (loop [p popul generation 0]
+    (if (or (= (:fitness (first p)) 10) (> generation 9999))
+      (if (< generation 10000)
+        (str "Solution is found in generation: "  generation " Data: " (first p))
+        (str "No solution found. Best result (match) " (first p)))
+      (recur (evolve-pop p sol) (inc generation)))))
 
 
-(time (find-solution (init-population! 15 sol)))
+;(let [sol [1 1 0 1 0 0 1 1 1 0]] (find-solution (init-population! 15 sol) sol))
 
-;; Knapsack Problem
-
-(def survival-set [{:name "pocketknife" :sur-points 10 :weight 1}
-                   {:name "beans" :sur-points 20 :weight 5}
-                   {:name "potatoes" :sur-points 15 :weight 10}
-                   {:name "unions" :sur-points 2 :weight 1}
-                   {:name "sleeping bag" :sur-points 30 :weight 7}
-                   {:name "rope" :sur-points 10 :weight 5}
-                   {:name "compass" :sur-points 30 :weight 1}])
-
-(def weight-limit 20)
-
-(defn survival-cost-f
-  []
-  :survival)

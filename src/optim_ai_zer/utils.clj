@@ -23,3 +23,11 @@
   "Calculate Euclidian distance between two points"
   [pt1 pt2]
   (Math/sqrt (+ (Math/pow (- (:x pt1) (:x pt2)) 2) (Math/pow (- (:y pt1) (:y pt2)) 2))))
+
+(defn r-swap-val!
+  "Swap two random values in given vector"
+  [vec1]
+  (loop [pos1 (rand-int (count vec1)) pos2 (rand-int (count vec1))]
+    (if (= pos1 pos2)
+      (recur pos1 (rand-int (count vec1)))
+      (assoc (assoc vec1 pos1 (nth vec1 pos2)) pos2 (nth vec1 pos1)))))
