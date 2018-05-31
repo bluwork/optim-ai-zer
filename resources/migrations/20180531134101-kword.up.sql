@@ -1,0 +1,8 @@
+CREATE TABLE `kword` (
+
+`id`          BIGINT(20) NOT NULL AUTO_INCREMENT, 
+`word`        VARCHAR(50) NOT NULL,
+
+PRIMARY KEY (`id`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
