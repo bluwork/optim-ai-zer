@@ -1,10 +1,13 @@
-(ns optim-ai-zer.utils)
+(ns optim-ai-zer.utils
+  (:require [uncomplicate.neanderthal
+             [native :refer :all]
+             [core :refer :all]]))
 
 ;; TODO Catch exception
 (defn dot-product
   [vec1 vec2]
   (if (= (count vec1) (count vec2))
-    (apply +(map #(* %1 %2) vec1 vec2 ))))
+    (apply + (map #(* %1 %2) vec1 vec2 ))))
 
 (defn magnitude
   [vec1]
@@ -31,3 +34,12 @@
     (if (= pos1 pos2)
       (recur pos1 (rand-int (count vec1)))
       (assoc (assoc vec1 pos1 (nth vec1 pos2)) pos2 (nth vec1 pos1)))))
+
+;(def a (dge 2 3 [1 2 3 4 5 6]))
+;(def b (dge 3 2 [1 3 5 7 9 11]))
+
+; Not working on Mac
+; java.lang.NoClassDefFoundError: Could not initialize class uncomplicate.neanderthal.internal.host.CBLAS
+; - let's try on Linux
+;(mm a b)
+;(dot (dv 1 2 3 4 5 6) (dv 1 3 5 7 9 11))

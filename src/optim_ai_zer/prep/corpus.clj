@@ -1,6 +1,8 @@
 (ns optim-ai-zer.prep.corpus
   (:require [peco.core :refer [tokenizer]]
-            [optim-ai-zer.prep.feed :as f]))
+            [optim-ai-zer.prep.feed :as f]
+            [optim-ai-zer.prep.optibase :as db]
+            [criterium.core :as crit]))
 
 (def tokenize (tokenizer [:lower-case :remove-numbers :porter-stem :remove-stop-words]))
 
@@ -20,20 +22,30 @@
 
 (defn pos-keywords
   "Return possible keywords from feed articles"
-  [text repetitive]
+  [text times-repeated]
   (->> text
        (get-frequencies)
-       (filter #(> (val %) repetitive))
-       (sort-by val >)))
-  ;(sort-by val > (filter #(> (val %) repetition) (get-frequencies text))))
+       (filter #(> (val %) times-repeated))
+       (sort-by val >)
+       keys))
 
-; (f/r-article! ((comp :science :bbc) rss-links) :bbc)
+(defn art-kwords
+  [article]
+  (pos-keywords (:content article) 3))
 
+(defn all-kwords
+  [articles]
+  (map (fn [x] {:word x}) (set (apply concat (map art-kwords articles)))))
 
-; (f/r-article! ((comp :ml :mit) rss-links) :mit)
+;(db/insert-articles (f/articles ((comp :science :mit) rss-links) :mit))
 
-; (f/r-article! ((comp :all :ai-trends) rss-links) :ai-trends)
+;; TODO Not finished 
+(defn tf
+  [articles]
+  (let [relevant-kwords (all-kwords articles)]
+    (loop [counter (count articles) tfm []]
+      (if (< counter 1)
+        :true
+        (recur (dec counter) tf)))))
 
-; (f/r-article! ((comp :all :fast-ml) rss-links) :fast-ml)
-
-
+;(crit/with-progress-reporting (crit/quick-bench (all-kwords (db/all-articles))))

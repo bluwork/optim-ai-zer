@@ -1,4 +1,4 @@
-# optim-ai-zer
+# optim-AI-zer
 
 - Stochastic optimization
 - Solve problems where outcomes depends on the combination of many variables.
@@ -11,7 +11,7 @@
 - Return value that represent how bad solution is.
 - Most difficult thing to determine.
 
-# Random Searching
+
 
 # Hill Climbing
 
@@ -52,13 +52,12 @@
   * crossover (breeding) - taking two of the best solutions and combining them
 # Installation
 
-Download from http://example.com/FIXME.
+For now clone this git, use your preffered editor and REPL-it.
 
 ## Usage
 
 ## Options
 
-FIXME: listing of options this app accepts.
 
 ## Examples
 

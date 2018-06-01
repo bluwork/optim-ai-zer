@@ -12,7 +12,9 @@
                  [clojure.jdbc/clojure.jdbc "0.4.0"]
                  [mysql/mysql-connector-java "5.1.39"]
                  [korma/korma "0.4.3"]
-                 [migratus "1.0.6"]]
+                 [migratus "1.0.6"]
+                 [criterium "0.4.4"]
+                 [uncomplicate/neanderthal "0.19.0"]]
   :codox {:metadata {:doc/format :markdown}
           :src-dir-uri "https://github.com/masandcomm/optim-ai-zer/blob/master/"
           :src-linenum-anchor-prefix "L"
@@ -33,4 +35,6 @@
                   :subprotocol "mysql"
                   :subname "//localhost:3306/optima"
                   :user "optima"
-                  :password "optima1"}})
+                  :password "optima1"}}
+  :exclusions [[org.jcuda/jcuda-natives :classifier "apple-x86_64"]
+               [org.jcuda/jcublas-natives :classifier "apple-x86_64"]])

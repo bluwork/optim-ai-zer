@@ -5,48 +5,39 @@
             [clojure.string :as cstr]))
 
 
-(def selector-bbc "[property=articleBody] p")
-(def selector-reuters "p")
-
 (defn selector
+  "Returns string of params for filtering text"
   [provider]
   (cond 
     (= provider :reuters) "p"
     (= provider :bbc) "[property=articleBody] p"
     :else "p"))
 
-(defn feed
-  [address]
-  (feedp/parse-feed (io/input-stream address)))
-
+(defn rss-feed
+  "Returns clojure-like map of rss-feed"
+  [feed-link]
+  (feedp/parse-feed (io/input-stream feed-link)))
 
 
 (defn links
+  "Returns all links from current rss feed"
   [feed]
   (map #(:link %) (:entries feed)))
 
-(defn random-link!
-  [feed]
-  (let [links (map #(:link %) (:entries feed))]
-    (nth links (rand-int (count links)))))
-
 (defn get-doc
-  [link]
-  (.get (Jsoup/connect link)))
+  "Returns page from web"
+  [article-link]
+  (.get (Jsoup/connect article-link)))
 
-(defn get-title
-  [link]
-  (.title (get-doc link)))
 
-(defn get-body
-  [link]
-  (.body (get-doc link)))
+(defn article
+  "Returns map which represents one article - title and content"
+  [article-link provider]
+  (let [doc (get-doc article-link)]
+    {:title (.title doc) :content (.text (.select (.body doc) (selector provider)))}))
 
-(defn article-body
-  [link selector]
-  (.text (.select (get-body link) selector)))
-
-(defn r-article!
-  [link provider]
-  (let [feed (feed link)]
-    (article-body (random-link! feed) (selector provider))))
+(defn articles
+  "Returns all articles from selected rss-feed"
+  [feed-link provider]
+  (let [feed (rss-feed feed-link)]
+    (map #(article % provider) (links feed))))
