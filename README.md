@@ -1,10 +1,16 @@
 # optim-AI-zer
 
+- Recommender system, RSS Feed corpus preparator
+Theory:
 - Stochastic optimization
 - Solve problems where outcomes depends on the combination of many variables.
   Problems can have many possible solutions.
 - Optimization finds the best solution by trying many different solutions and
   scoring them to determine quality of each.
+Implementation - in Clojure:
+- RSS Feed data collector - optim-ai-zer.prep.feed
+- Corpus preparator - optim-ai-zer.prep.corpus
+
 
 # The Cost Function
 
@@ -14,12 +20,15 @@
 
 
 # Hill Climbing
-
+Theory:
 - Starts with a random solution
 - Looks ath the set of neighboring solutions for those that are better (cost
   function for that solution is lower).
+Implementation:
+- Algorithm code in optim-ai-zer.algos.hill
 
 # Simulated Annealing
+Theory:
 - optimization method inspired by physics
 - starts with a random solution
 - uses variable representing the temperature which start high and gradually gets
@@ -36,8 +45,11 @@
     almost 1
   * when temperature decreases, the difference between the high cost and the low
     cost becomes more important: bigger diff - lower probability
+Implementation:
+- Algorithm code in optim-ai-zer.algos.simann.clj
 
 # Genetic Algorithms
+Theory:
 - inspired by nature
 - population
 - in each step, the cost function for the entire population is calculated to get
@@ -50,9 +62,12 @@
 - two ways:
   * mutation - small, simple, random change to existing solution
   * crossover (breeding) - taking two of the best solutions and combining them
+Implementation:
+- Algorithm code in optim-ai-zer.algos.genalg.clj
+
 # Installation
 
-For now clone this git, use your preffered editor and REPL-it.
+For now clone this git, then REPL.
 
 ## Usage
 
@@ -62,14 +77,6 @@ For now clone this git, use your preffered editor and REPL-it.
 ## Examples
 
 ...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
 
 ## License
 

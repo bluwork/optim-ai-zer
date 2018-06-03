@@ -4,7 +4,9 @@
             local-max - solution that is better than any others nearby, but
             isn't the very best."}
     optim-ai-zer.algos.simann
-  (:require [optim-ai-zer.utils :as u]))
+  (:require [optim-ai-zer.utils :as u]
+            [optim-ai-zer.prep.corpus :as corpus]
+            [uncomplicate.neanderthal.core :refer :all]))
 
 ;; 1. Generate random solution
 
@@ -31,8 +33,6 @@
              {:name "Lille" :x 200 :y 160} {:name "Rennes" :x 140 :y 140} {:name "Brest" :x 40 :y 120}
              {:name "Toulon" :x 100 :y 120} {:name "Nancy" :x 180 :y 100} {:name "Calais" :x 60 :y 80}])
 
-
-
 (defn acceptance-probability
   [curr-dist new-dist temp]
   (if (< new-dist curr-dist)
@@ -46,20 +46,47 @@
     (if (= accum (count tour))
       distance
       (recur (inc accum) (if (= accum  (dec (count tour)))
-                           (+ distance (u/euclidian-dist (nth tour accum) (first tour)))
-                           (+ distance (u/euclidian-dist (nth tour accum) (nth tour (inc accum)))))))))
+                           (+ distance (u/euclid-dist (nth tour accum) (first tour)))
+                           (+ distance (u/euclid-dist (nth tour accum) (nth tour (inc accum)))))))))
+
 
 (defn simulate-annealing!
+  "Try to determine tour with lowest distance between cities
+  best solution (b-sol) is lowest solution in this case
+  default temp 10000 cooling-rate 0.003"
   ([cities] (simulate-annealing! cities 10000 0.003))
   ([cities init-temp cooling-rate]
-   (let [init-sol cities best-solution (atom cities)]
-     (loop [temp init-temp solution init-sol]
-       (if (< (ttd solution) (ttd (deref best-solution))) (reset! best-solution solution))
+   (let [init-sol cities b-sol (atom cities)]
+     (loop [temp init-temp sol init-sol]
+       (if (< (ttd sol) (ttd (deref b-sol))) (reset! b-sol sol))
        (if (< temp 1)
-         (str "Final solution distance: " (ttd (deref best-solution)) "Tour: " (deref best-solution) )
-         (recur (* temp (- 1 cooling-rate)) (let [new-solution (u/r-swap-val! solution)]
-                                              (if (> (acceptance-probability (ttd solution) (ttd new-solution) temp) (rand))
-                                                new-solution
-                                                solution))))))))
-;(time (simulate-annealing! cities 5000 0.003))
+         (str "Final solution distance: " (ttd (deref b-sol)) "Tour: " (deref b-sol) )
+         (recur (* temp (- 1 cooling-rate)) (let [new-sol (u/r-swap-val! sol)]
+                                              (if (> (acceptance-probability (ttd sol) (ttd new-sol) temp) (rand))
+                                                new-sol
+                                                sol))))))))
+(simulate-annealing! cities 5000 0.003)
 
+
+(defn exclude-from-random!
+  [random-range exclude]
+  (loop [rand-num (rand-int random-range)]
+    (pr-str rand-num)
+    (if (= rand-num exclude)
+      (recur (rand-int random-range))
+      rand-num)))
+
+
+(defn sim-ann-articles!
+  [reper matrix init-temp cr]
+  (let [best (atom [(dec (mrows matrix))])]
+    (loop [temp init-temp sol (inc reper)]
+      (if (< (u/n-cos-dist (row matrix reper) (row matrix sol)) (u/n-cos-dist (row matrix reper) (row matrix (last @best)))) (swap! best conj sol))
+      (if (< temp 1)
+        (str "Final solution list: "  (reverse @best))
+        (recur (* temp (- 1 cr)) (let [next-sol (exclude-from-random! (mrows matrix) reper)]
+                                   (if (> (acceptance-probability (u/n-cos-dist (row matrix reper) (row matrix sol)) (u/n-cos-dist (row matrix reper) (row matrix next-sol)) temp) (rand))
+                                               next-sol
+                                               sol)))))))
+  
+;;(sim-ann-articles! 15 (corpus/get-matrix) 5000 0.003)

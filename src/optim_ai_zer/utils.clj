@@ -1,50 +1,56 @@
 (ns optim-ai-zer.utils
   (:require [uncomplicate.neanderthal
              [native :refer :all]
-             [core :refer :all]]
+             [core :refer :all]
+             [linalg :refer :all]]
             [criterium.core :refer :all]))
 
 ;; TODO Catch exception
-(defn dot-product
-  [vec1 vec2]
-  (if (= (count vec1) (count vec2))
-    (apply + (map #(* %1 %2) vec1 vec2 ))))
+(defn dot-prod
+  [u v]
+  (if (= (count u) (count v))
+    (apply + (map #(* %1 %2) u v))))
 
 (defn magnitude
-  [vec1]
-  (Math/sqrt (apply + (map #(* % %) vec1))))
+  [u]
+  (Math/sqrt (apply + (map #(* % %) u))))
 
 
-(defn cosine-similarity
-  [vec1 vec2]
-  (/ (dot-product vec1 vec2) (* (magnitude vec1) (magnitude vec2))))
+(defn cos-sim
+  [u v]
+  (/ (dot-prod u v)  (magnitude u) (magnitude v)))
 
-(defn cosine-distance
-  [vec1 vec2]
-  (- 1 (cosine-similarity vec1 vec2)))
+(defn n-cos-sim
+  [u v]
+  (/ (dot u v) (nrm2 u) (nrm2 v)))
 
-(defn euclidian-dist
+(defn cos-dist
+  [u v]
+  (- 1 (cos-sim u v)))
+
+(defn n-cos-dist
+  [dv1 dv2]
+  (let [dvu (dv dv1) dvv (dv dv2)]
+    (- 1 (n-cos-sim dvu dvv))))
+
+(defn euclid-dist
   "Calculate Euclidian distance between two points"
   [pt1 pt2]
   (Math/sqrt (+ (Math/pow (- (:x pt1) (:x pt2)) 2) (Math/pow (- (:y pt1) (:y pt2)) 2))))
 
+(defn ned
+  "Calculate Euclidian Distance between two vectors
+   using native Neanderthal lib"
+  [clu clv]
+  (let [u (dv clu) v (dv clv)]
+    (nrm2 (axpy -1 v u))))
+
 (defn r-swap-val!
-  "Swap two random values in given vector"
-  [vec1]
-  (loop [pos1 (rand-int (count vec1)) pos2 (rand-int (count vec1))]
-    (if (= pos1 pos2)
-      (recur pos1 (rand-int (count vec1)))
-      (assoc (assoc vec1 pos1 (nth vec1 pos2)) pos2 (nth vec1 pos1)))))
-
-(def a (dge 2 3 [1 2 3 4 5 6]))
-(def b (dge 3 2 [1 3 5 7 9 11]))
-
-; Not working on Mac
-; java.lang.NoClassDefFoundError: Could not initialize class uncomplicate.neanderthal.internal.host.CBLAS
-; - let's try on Linux
-;(mm a b)
-
-(defn quick-bench!
-  [entry]
-  (with-progress-reporting (quick-bench entry)))
+  "Swap two random positions (sp and fp) in given vector u"
+  [u]
+  (let [size (count u)]
+    (loop [sp (rand-int size) fp (rand-int size)]
+      (if (= sp fp)
+        (recur sp (rand-int size))
+        (assoc (assoc u sp (nth u fp)) fp (nth u sp))))))
 

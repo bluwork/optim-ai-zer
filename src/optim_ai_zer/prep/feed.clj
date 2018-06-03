@@ -4,7 +4,15 @@
             [feedparser-clj.core :as feedp]
             [clojure.string :as cstr]))
 
-
+(def rss-links {:bbc {:science  "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml"
+                      :technology "https://feeds.bbci.co.uk/news/technology/rss.xml"}
+                :reuters {:science "http://feeds.reuters.com/reuters/scienceNews"
+                          :technology "http://feeds.reuters.com/reuters/technologyNews"}
+                :mit {:ml "https://news.mit.edu/rss/topic/machine-learning"
+                      :robotics "https://news.mit.edu/rss/topic/robotics"
+                      :science "https://news.mit.edu/rss/topic/science-technology-and-society"}
+                :fast-ml {:all "http://fastml.com/atom.xml"}
+                :ai-trends {:all "https://aitrends.com/feed/"}})
 (defn selector
   "Returns string of params for filtering text"
   [provider]
@@ -36,8 +44,9 @@
   (let [doc (get-doc article-link)]
     {:title (.title doc) :content (.text (.select (.body doc) (selector provider)))}))
 
-(defn articles
+(defn art-from
   "Returns all articles from selected rss-feed"
-  [feed-link provider]
-  (let [feed (rss-feed feed-link)]
+  [provider topic]
+  (let [feed (rss-feed ((comp topic provider) rss-links))]
     (map #(article % provider) (links feed))))
+

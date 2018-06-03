@@ -2,23 +2,17 @@
   (:require [peco.core :refer [tokenizer]]
             [optim-ai-zer.prep.feed :as f]
             [optim-ai-zer.prep.optibase :as db]
-            [criterium.core :as crit]))
+            [optim-ai-zer.utils :as u]
+            [criterium.core :as crit]
+            [uncomplicate.neanderthal.core :refer :all]))
 
-(def tokenize (tokenizer [:lower-case :remove-numbers :porter-stem :remove-stop-words]))
+(def token-stem (tokenizer [:lower-case :porter-stem :remove-stop-words]))
 
-(def rss-links {:bbc {:science  "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml"
-                    :technology "https://feeds.bbci.co.uk/news/technology/rss.xml"}
-              :reuters {:science "http://feeds.reuters.com/reuters/scienceNews"
-                        :technology "http://feeds.reuters.com/reuters/technologyNews"}
-              :mit {:ml "https://news.mit.edu/rss/topic/machine-learning"
-                    :robotics "https://news.mit.edu/rss/topic/robotics"
-                    :science "https://news.mit.edu/rss/topic/science-technology-and-society"}
-              :fast-ml {:all "http://fastml.com/atom.xml"}
-              :ai-trends {:all "https://aitrends.com/feed/"}})
+(def token-w-o-stem (tokenizer [:lower-case :remove-stop-words]))
 
 (defn get-frequencies
   [text]
-  (frequencies (tokenize text)))
+  (frequencies (token-stem text)))
 
 (defn pos-keywords
   "Return possible keywords from feed articles"
@@ -26,26 +20,39 @@
   (->> text
        (get-frequencies)
        (filter #(> (val %) times-repeated))
-       (sort-by val >)
-       keys))
+       (sort-by val >)))
 
 (defn art-kwords
   [article]
-  (pos-keywords (:content article) 3))
+  (pos-keywords (:content article) 2))
 
-(defn all-kwords
+;; Pseudo code - values
+;; TF(t) = (Number of times term t appears in a document) / (Total number of terms in the document)
+;; IDF(t) = log_e(Total number of documents / Number of documents with term t in it).
+;; Value = TF * IDF
+
+;;(db/insert-articles (f/art-from :mit :science))
+
+(defn all-unique
+  "Return All Unique Keywords from corpus"
   [articles]
-  (map (fn [x] {:word x}) (set (apply concat (map art-kwords articles)))))
+  (let [kw (map #(keys (art-kwords %)) articles)]
+    (set (filter #(> (count %) 3) (apply concat kw)))))
 
-;(db/insert-articles (f/articles ((comp :science :mit) rss-links) :mit))
+(def tw (let [tw (all-unique (db/all-articles))]
+                            tw))
+(defn calculate-weight
+  [inp]
+  (let [input (into {} inp) ]
+    (map (fn [x] (if (nil? (input x))
+                   0.0
+                   (float (/ (input x) (count tw))))) tw)))
 
-;; TODO Not finished 
-(defn tf
-  [articles]
-  (let [relevant-kwords (all-kwords articles)]
-    (loop [counter (count articles) tfm []]
-      (if (< counter 1)
-        :true
-        (recur (dec counter) tf)))))
+(def tf (let [kw (map #(calculate-weight (art-kwords %)) (db/all-articles))]
+          kw))
 
-;(crit/with-progress-reporting (crit/quick-bench (all-kwords (db/all-articles))))
+(defn get-matrix
+  []
+  (u/to-matrix tf))
+
+
