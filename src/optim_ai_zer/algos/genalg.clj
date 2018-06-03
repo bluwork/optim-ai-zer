@@ -100,3 +100,4 @@
 
 ;(let [sol [1 1 0 1 0 0 1 1 1 0]] (find-solution (init-population! 15 sol) sol))
 
+(def art-sol (corpus/get-some-kwords))

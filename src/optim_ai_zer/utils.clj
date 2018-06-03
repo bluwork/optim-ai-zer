@@ -15,7 +15,6 @@
   [u]
   (Math/sqrt (apply + (map #(* % %) u))))
 
-
 (defn cos-sim
   [u v]
   (/ (dot-prod u v)  (magnitude u) (magnitude v)))
@@ -53,4 +52,19 @@
       (if (= sp fp)
         (recur sp (rand-int size))
         (assoc (assoc u sp (nth u fp)) fp (nth u sp))))))
+
+(defn dge-matrix
+  [source]
+  (dge (count source) (count (first source)) source))
+
+(defn vec-dist
+  [m a b]
+  (n-cos-dist (row m a) (row m b)))
+
+(defn rand-w-o-num!
+  [range exclude]
+  (loop [rand-num (rand-int range)]
+    (if (= rand-num exclude)
+      (recur (rand-int range))
+      rand-num)))
 

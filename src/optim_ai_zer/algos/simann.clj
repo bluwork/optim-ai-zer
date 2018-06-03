@@ -6,6 +6,7 @@
     optim-ai-zer.algos.simann
   (:require [optim-ai-zer.utils :as u]
             [optim-ai-zer.prep.corpus :as corpus]
+            [optim-ai-zer.prep.optibase :as db]
             [uncomplicate.neanderthal.core :refer :all]))
 
 ;; 1. Generate random solution
@@ -25,8 +26,7 @@
 
 ;; Very important parameter - temperature
 
-;; TSP The Salesman problem
-
+;; TSP Traveling Salesman problem
 
 (def cities [{:name "Paris" :x 60 :y 200} {:name "Lyon" :x 180 :y 200} {:name "La Rochelle" :x 80 :y 180}
              {:name "Bordeaux" :x 140 :y 180} {:name "Lenz" :x 20 :y 160} {:name "Nice" :x 100 :y 160}
@@ -67,26 +67,24 @@
                                                 sol))))))))
 (simulate-annealing! cities 5000 0.003)
 
-
-(defn exclude-from-random!
-  [random-range exclude]
-  (loop [rand-num (rand-int random-range)]
-    (pr-str rand-num)
-    (if (= rand-num exclude)
-      (recur (rand-int random-range))
-      rand-num)))
-
+(defn calculate-cost
+  [matrix reper sol temp]
+  (let [next-sol (u/rand-w-o-num! (mrows matrix) reper)]
+    (if (> (acceptance-probability (u/vec-dist matrix reper sol) (u/vec-dist matrix reper next-sol) temp) (rand))
+      next-sol
+      sol)))
 
 (defn sim-ann-articles!
   [reper matrix init-temp cr]
   (let [best (atom [(dec (mrows matrix))])]
     (loop [temp init-temp sol (inc reper)]
-      (if (< (u/n-cos-dist (row matrix reper) (row matrix sol)) (u/n-cos-dist (row matrix reper) (row matrix (last @best)))) (swap! best conj sol))
+      (if (< (u/vec-dist matrix reper sol) (u/vec-dist matrix reper (last @best))) (swap! best conj sol))
       (if (< temp 1)
-        (str "Final solution list: "  (reverse @best))
-        (recur (* temp (- 1 cr)) (let [next-sol (exclude-from-random! (mrows matrix) reper)]
-                                   (if (> (acceptance-probability (u/n-cos-dist (row matrix reper) (row matrix sol)) (u/n-cos-dist (row matrix reper) (row matrix next-sol)) temp) (rand))
-                                               next-sol
-                                               sol)))))))
-  
-;;(sim-ann-articles! 15 (corpus/get-matrix) 5000 0.003)
+        (reverse @best)
+        (recur (* temp (- 1 cr)) (calculate-cost matrix reper sol temp) )))))
+
+(def m (corpus/tf-m))  
+(sim-ann-articles! 0 m 10000 0.002)
+
+(def corpus (db/all-articles))
+(map #(:title %) (map #(nth corpus  %) (sim-ann-articles! 54 m 10000 0.003)))
