@@ -27,7 +27,7 @@
                        optim-ai-zer.prep.feed
                        optim-ai-zer.prep.corpus
                        optim-ai-zer.utils]
-          :output-path "docs/codox"}
+          :output-path "docs"}
   :profiles {:dev {:plugins [[lein-codox "0.9.0"]
                              [migratus-lein "0.4.1"]]
                    #_:global-vars #_{*warn-on-reflection* true}}}

@@ -24,13 +24,13 @@
 ;;(def uniqes (co/all-unique corpus))
 
 (defn analyze
-  [art-num]
-  (map #(co/kwords (:content %)) (map #(nth corpus %) (sim/sim-ann-articles! art-num m 10000 0.002))))
+  [art-num corpus tf-m]
+  (map #(co/kwords (:content %)) (map #(nth corpus %) (sim/sim-ann-articles! art-num tf-m 10000 0.002))))
 
 ;;(map #(:link %) (map #(nth corpus  %) (sim/sim-ann-articles! 0 m 10000 0.002)))
 
 (defn kw
-  [num]
+  [num corpus]
   (let [art-kw (co/kwords (:content (nth corpus num)))]
     art-kw))
 ;;(time (climb! cities 5000)
