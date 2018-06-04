@@ -12,10 +12,12 @@
   (entity-fields :title :content))
 
 (defn insert-articles
+  "Insert one or more articles in db"
   [articles]
   (insert article (values articles)))
 
 (defn all-articles
+  "Returns all articles from db"
   []
   (select article))
 

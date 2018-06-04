@@ -11,15 +11,21 @@
                 :mit {:ml "https://news.mit.edu/rss/topic/machine-learning"
                       :robotics "https://news.mit.edu/rss/topic/robotics"
                       :science "https://news.mit.edu/rss/topic/science-technology-and-society"}
-                :fast-ml {:all "http://fastml.com/atom.xml"}
-                :ai-trends {:all "https://aitrends.com/feed/"}})
+                :ai-trends {:all "https://aitrends.com/feed/"}
+                :sci-daily {:science "https://www.sciencedaily.com/rss/top/science.xml"
+                            :technology "https://www.sciencedaily.com/rss/top/technology.xml"}
+                :verge {:all "https://www.theverge.com/rss/index.xml"}})
 (defn selector
   "Returns string of params for filtering text"
   [provider]
-  (cond 
-    (= provider :reuters) "p"
+  (cond
+    (= provider :mit) ".field-name-field-article-content p"
+    (= provider :reuters) ".body_1gnLA p:not(.content_27_rw)"
     (= provider :bbc) "[property=articleBody] p"
-    :else "p"))
+    (= provider :verge) ".c-entry-content p"
+    (= provider :ai-trends) ".td-post-content p"
+    (= provider :sci-daily) "#text p"
+     :else "p"))
 
 (defn rss-feed
   "Returns clojure-like map of rss-feed"
@@ -41,12 +47,13 @@
 (defn article
   "Returns map which represents one article - title and content"
   [article-link provider]
-  (let [doc (get-doc article-link)]
-    {:title (.title doc) :content (.text (.select (.body doc) (selector provider)))}))
+  (let [doc (get-doc article-link) title (.title doc) content (.text (.select (.body doc) (selector provider)))]
+    (if (> (count content) 300)
+      {:title title :content content})))
 
 (defn art-from
   "Returns all articles from selected rss-feed"
   [provider topic]
   (let [feed (rss-feed ((comp topic provider) rss-links))]
-    (map #(article % provider) (links feed))))
+    (filter (complement nil?) (map #(article % provider) (links feed)))))
 

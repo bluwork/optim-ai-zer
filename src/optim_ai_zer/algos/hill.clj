@@ -28,8 +28,8 @@
     (if (= accum (count tour))
       distance
       (recur (inc accum) (if (= accum  (dec (count tour)))
-                           (+ distance (u/euclidian-dist (nth tour accum) (first tour)))
-                           (+ distance (u/euclidian-dist (nth tour accum) (nth tour (inc accum)))))))))
+                           (+ distance (u/euclid-dist (nth tour accum) (first tour)))
+                           (+ distance (u/euclid-dist (nth tour accum) (nth tour (inc accum)))))))))
 
 (defn climb!
   ([cities] (climb! cities 1000))
@@ -43,5 +43,5 @@
                                              (if (< (ttd new-solution) (ttd solution))
                                                new-solution
                                                solution))))))))
-;(time (climb! cities 5000))
+
 

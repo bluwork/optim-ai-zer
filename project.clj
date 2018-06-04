@@ -1,5 +1,6 @@
-(defproject optim-ai-zer "0.1.0"
-  :description "Set of methods for optimization techniques"
+(defproject optim-ai-zer "0.1.1"
+  :description "Corpus preparation, analyzing and finding best solution using
+   optimization techniques"
   :url "https://github.com/masandcomm/optim-ai-zer"
   :scm {:name "git"
         :url "https://github.com/masandcomm/optim-ai-zer"}

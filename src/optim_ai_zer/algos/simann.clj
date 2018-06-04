@@ -34,13 +34,14 @@
              {:name "Toulon" :x 100 :y 120} {:name "Nancy" :x 180 :y 100} {:name "Calais" :x 60 :y 80}])
 
 (defn acceptance-probability
+  "Returns probability based on distances and temperature."
   [curr-dist new-dist temp]
   (if (< new-dist curr-dist)
     1.0
     (Math/exp (/ (- curr-dist new-dist) temp))))
 
 (defn ttd
-  "Calculate tour total distance"
+  "Calculate tour total distance for Traveling Salesman Problem."
   [tour]
   (loop [accum 0 distance 0]
     (if (= accum (count tour))
@@ -65,9 +66,10 @@
                                               (if (> (acceptance-probability (ttd sol) (ttd new-sol) temp) (rand))
                                                 new-sol
                                                 sol))))))))
-(simulate-annealing! cities 5000 0.003)
 
 (defn calculate-cost
+  "Calculate cost and return old or new solution based on
+   acceptance probability"
   [matrix reper sol temp]
   (let [next-sol (u/rand-w-o-num! (mrows matrix) reper)]
     (if (> (acceptance-probability (u/vec-dist matrix reper sol) (u/vec-dist matrix reper next-sol) temp) (rand))
@@ -75,6 +77,7 @@
       sol)))
 
 (defn sim-ann-articles!
+  "Iterative process for article recommendation system"
   [reper matrix init-temp cr]
   (let [best (atom [(dec (mrows matrix))])]
     (loop [temp init-temp sol (inc reper)]
@@ -82,9 +85,3 @@
       (if (< temp 1)
         (reverse @best)
         (recur (* temp (- 1 cr)) (calculate-cost matrix reper sol temp) )))))
-
-(def m (corpus/tf-m))  
-(sim-ann-articles! 0 m 10000 0.002)
-
-(def corpus (db/all-articles))
-(map #(:title %) (map #(nth corpus  %) (sim-ann-articles! 54 m 10000 0.003)))
