@@ -1,14 +1,42 @@
-(ns optim-ai-zer.core)
+(ns optim-ai-zer.core
+  (:require [optim-ai-zer.algos.simann :as sim]
+            [optim-ai-zer.prep.corpus :as co]
+            [optim-ai-zer.prep.feed :as f]
+            [optim-ai-zer.prep.optibase :as db]
+            [clojure.set :as s]))
 
+(defn simann
+  [art-num]
+  (let [m (co/tf-m)]
+    (with-out-str ( sim/sim-ann-articles! art-num m 10000 0.002))))
 
-(defn noname
-  [])
-;;(db/insert-articles (f/art-from :sci-daily :technology))
+(defn -main
+  "Entry point"
+  []
+  (println "Hello! Please use REPL for now :)"))
+
+;(db/insert-articles (f/art-from :mit :robotics))
 ;(simulate-annealing! cities 5000 0.003)
 
-;;(def m (corpus/tf-m))
-;;(sim-ann-articles! 0 m 10000 0.002)
+;;(def m (co/tf-m))
 
 ;;(def corpus (db/all-articles))
-;;(map #(:title %) (map #(nth corpus  %) (sim-ann-articles! 16 m 10000 0.003)))
-;;(time (climb! cities 5000))
+;;(def uniqes (co/all-unique corpus))
+
+(defn analyze
+  [art-num]
+  (map #(co/kwords (:content %)) (map #(nth corpus %) (sim/sim-ann-articles! art-num m 10000 0.002))))
+
+;;(map #(:link %) (map #(nth corpus  %) (sim/sim-ann-articles! 0 m 10000 0.002)))
+
+(defn kw
+  [num]
+  (let [art-kw (co/kwords (:content (nth corpus num)))]
+    art-kw))
+;;(time (climb! cities 5000)
+
+;;(analyze 0)
+(defn same-kws
+  [art1 art2]
+  (s/intersection (set (kw art1)) (set (kw  art2))))
+;;(same-kws 0 67)

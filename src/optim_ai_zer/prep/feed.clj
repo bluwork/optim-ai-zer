@@ -49,7 +49,7 @@
   [article-link provider]
   (let [doc (get-doc article-link) title (.title doc) content (.text (.select (.body doc) (selector provider)))]
     (if (> (count content) 300)
-      {:title title :content content})))
+      {:title title :link article-link :content content})))
 
 (defn art-from
   "Returns all articles from selected rss-feed"

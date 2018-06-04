@@ -15,6 +15,8 @@
   [text]
   (frequencies (token-stem text)))
 
+
+
 (defn pos-keywords
   "Returns possible terms from feed articles
   for given frequency"
@@ -23,15 +25,14 @@
        (get-frequencies)
        (filter #(> (val %) times-repeated))
        (sort-by val >)))
-
+(defn kwords
+  [text]
+  (keys (pos-keywords text 1)))
 (defn art-kwords
   "Returns all tokenized terms from article"
   [article]
   (pos-keywords (:content article) 1))
 
-(defn idf-m
-  []
-  )
 (defn all-unique
   "Return all unique kwords from whole corpus"
   [corpus]
@@ -73,3 +74,10 @@
   "Returns transposed matrix from given input"
   [tf-m]
   (u/transpose (tf-m)))
+
+(defn train-d
+  "Return indices for training and test data. Not yet implemented"
+  [percent]
+  (let [articles (db/all-articles) train-size (/ (* percent (count articles)) 100)]))
+    
+

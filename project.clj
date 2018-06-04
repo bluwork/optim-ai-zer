@@ -16,6 +16,7 @@
                  [migratus "1.0.6"]
                  [criterium "0.4.4"]
                  [uncomplicate/neanderthal "0.19.0"]]
+  :main optim-ai-zer.core
   :codox {:metadata {:doc/format :markdown}
           :src-dir-uri "https://github.com/masandcomm/optim-ai-zer/blob/master/"
           :src-linenum-anchor-prefix "L"
@@ -29,7 +30,7 @@
           :output-path "docs/codox"}
   :profiles {:dev {:plugins [[lein-codox "0.9.0"]
                              [migratus-lein "0.4.1"]]
-                   :global-vars {*warn-on-reflection* true}}}
+                   #_:global-vars #_{*warn-on-reflection* true}}}
   :migratus {:store :database
              :migration-dir "migrations"
              :db {:classname "com.mysql.cj.jdbc.Driver"
