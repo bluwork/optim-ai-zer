@@ -73,17 +73,44 @@ Theory:
 Implementation:
 - Algorithm code in optim-ai-zer.algos.genalg.clj
 
-# Installation
+## Installation
 
-For now clone this git, then REPL.
+  - Install [Intel MKL](https://software.intel.com/en-us/mkl).
+  - Clone and lein install [feedparser-clj](https://github.com/scsibug/feedparser-clj).
+  - Create user and database in MySQL server  or edit migratus and korma data (first is in project.clj, second in prep/optima.clj).
+  - Run lein migratus migrate.
 
 ## Usage
+
+For now, you can use it from REPL.
+* to add articles to db, from core.clj call (article-to-db provider topic), e.g.
+``` clojure
+(article-to-db :reuters :science)
+```
+* you can add, or change, or remove topics by editing rss-links in prep.feed.clj following the pattern {:provider {:topic "link"}}, e.g.
+``` clojure
+{:bbc {:science "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml"}}
+```
+* after adding data to db, create document term matrix using prep.corpus function dtf-m
+``` clojure
+(require '[optim-ai-zer.prep.corpus :refer :all])
+(def matrix (dtf-m))
+```
+ * note * call again if you change articles in database
+Then from core call, eg:
+``` clojure
+(similar-articles 0 matrix)
+```
+where 0 is first article from corpus.
 
 ## Options
 
 
 ## Examples
 
+## Future improvements
+- GUI
+- rss links in database - editable from GUI
 ...
 
 ## License

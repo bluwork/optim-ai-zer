@@ -60,8 +60,8 @@
   (let [uniqs (all-unique corpus)]
   (map #(calculate-weight (art-kwords %) uniqs) corpus)))
 
-(defn tf-m
-  "Create term frequency matrix for each article using Neanderthal"
+(defn dtf-m
+  "Create document term frequency matrix for each article using Neanderthal"
   ([] (tf-m (db/all-articles)))
   ([corpus] (u/dge-matrix (source-tf corpus))))
 
@@ -69,11 +69,6 @@
   "Create bin matrix from given source (list of crunched articles)"
   ([] (bin-m (db/all-articles)))
   ([corpus] (u/dge-matrix (to-bin (source-tf corpus)))))
-
-(defn df-m
-  "Returns transposed matrix from given input"
-  [tf-m]
-  (u/transpose (tf-m)))
 
 (defn train-d
   "Return indices for training and test data. Not yet implemented"
