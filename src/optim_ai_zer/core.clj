@@ -42,3 +42,5 @@
 (defn same-kws
   [art1 art2]
   (s/intersection (set (kw art1)) (set (kw  art2))))
+
+(def m (co/dtf-m))

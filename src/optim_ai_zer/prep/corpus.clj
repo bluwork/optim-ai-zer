@@ -62,7 +62,7 @@
 
 (defn dtf-m
   "Create document term frequency matrix for each article using Neanderthal"
-  ([] (tf-m (db/all-articles)))
+  ([] (dtf-m (db/all-articles)))
   ([corpus] (u/dge-matrix (source-tf corpus))))
 
 (defn bin-m
