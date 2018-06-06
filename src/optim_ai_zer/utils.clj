@@ -25,7 +25,10 @@
 (defn n-cos-sim
   "Return cosine similarity between 2 vecs"
   [u v]
-  (/ (dot u v) (nrm2 u) (nrm2 v)))
+  (let [magu (nrm2 u) magv (nrm2 v)]
+    (if (and (> magu 0.0) (> magv 0.0))
+      (/ (dot u v) magu magv)
+      0.0)))
 
 (defn cos-dist
   "Returns cosine distance between two vecs"

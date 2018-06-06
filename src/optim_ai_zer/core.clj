@@ -11,7 +11,7 @@
 (defn -main
   "Entry point"
   []
-  (println "Hello! Please use REPL for now :)"))
+  (println (str "Hello! Please use REPL for now :)")))
 
 (defn articles-to-db
   [provider topic]
@@ -22,25 +22,28 @@
   ([cities temp cooling-rate]
    (sim/simulate-annealing! cities temp cooling-rate)))
 
-(defn similar-articles
+(defn similar-articles-by-article
   [art-num tf-m]
-  (sim/sim-ann-articles! art-num tf-m 10000 0.002))
+  (sim/sim-ann-articles! art-num tf-m 5000 0.003))
 
 (defn article-map
   [art-list corpus]
   (map #(nth corpus %) art-list))
 
-(defn analyze
-  [art-num corpus tf-m]
-  (map #(co/kwords (:content %)) (map #(nth corpus %) similar-articles(art-num tf-m))))
+(defn similar-articles-by-words
+  [kwords dt-m]
+  (sim/sim-by-kwords! kwords dt-m 10000 0.002))
 
-(defn kw
-  [num corpus]
-  (let [art-kw (co/kwords (:content (nth corpus num)))]
-    art-kw))
+;;(time (def dtm (co/dt-m)))
 
-(defn same-kws
-  [art1 art2]
-  (s/intersection (set (kw art1)) (set (kw  art2))))
+(defn show-data
+  [art-num dtm]
+  (let [indices (similar-articles-by-article art-num dtm) docs (db/all-articles)]
+   (take 5 (map (fn [x] {:art-num x
+                        :length (count (:content (nth docs x)))
+                        :same-kwords (let [sk (co/same-kwords art-num x)]
+                                       [(count sk) sk])
+                        ;;:kwords (keys (co/kwords-for x))
+                         }) indices))))
+;;(show-data 1)
 
-(def m (co/dtf-m))

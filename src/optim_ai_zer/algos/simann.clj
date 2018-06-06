@@ -85,3 +85,7 @@
       (if (< temp 1)
         (reverse @best)
         (recur (* temp (- 1 cr)) (calculate-cost matrix reper sol temp) )))))
+
+(defn sim-by-kwords!
+  [kwords matrix init-temp cr]
+  )

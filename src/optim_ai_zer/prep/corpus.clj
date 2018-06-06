@@ -7,72 +7,109 @@
             [optim-ai-zer.prep.optibase :as db]
             [optim-ai-zer.utils :as u]))
 
-(def token-stem (tokenizer [:lower-case :porter-stem :remove-stop-words]))
+(def token-stem (tokenizer [:lower-case  :remove-stop-words :porter-stem]))
 
-(defn get-frequencies
-  "Returns kwords and number of repetition for each
-  for given text"
+(def corpus (db/all-articles))
+
+(def unique-words (atom #{}))
+
+
+
+(def pref-frequency 1)
+
+
+(defn tokenize
+  "Returns tokenized text (input is :content value from article)"
   [text]
-  (frequencies (token-stem text)))
+  (token-stem text))
+
+(defn single-article-kwords
+  "Returns keywords with frequency for given tokenized text"
+  [tokenized-text freq]
+  (into {} (filter #(> (val %) freq) (frequencies tokenized-text))))
 
 
 
-(defn pos-keywords
-  "Returns possible terms from feed articles
-  for given frequency"
-  [text times-repeated]
-  (->> text
-       (get-frequencies)
-       (filter #(> (val %) times-repeated))
-       (sort-by val >)))
-(defn kwords
-  [text]
-  (keys (pos-keywords text 1)))
-(defn art-kwords
-  "Returns all tokenized terms from article"
-  [article]
-  (pos-keywords (:content article) 1))
-
-(defn all-unique
-  "Return all unique kwords from whole corpus"
+(defn corpus-uniques
+  "Return unique keywords for given corpus"
   [corpus]
-  (let [kw (map #(keys (art-kwords %)) corpus)]
-    (set (filter #(> (count %) 3) (apply concat kw)))))
+  (set (apply concat (map (fn [x]  (keys (single-article-kwords (tokenize (:content  x)) pref-frequency))) corpus))))
 
-(defn calculate-weight
-  "Returns seq of floats which represent
-  weight of term in inp(uted text)"
-  [inp uniqs]
-  (let [input (into {} inp) ]
-    (map (fn [x] (if (nil? (input x))
-                   0.0
-                   (float (/ (input x) (count uniqs))))) uniqs)))
-(defn to-bin
-  "For some given vector vol returns seq of nums
-  every 0 stay 0 , every num bigger than 0 become 1"
-  [vol]
-  (map (fn [x]  (map #(if (> % 0) 1 0) x)) vol))
+(defn remember-uniques
+  [corpus]
+  (let [cu (corpus-uniques corpus)]
+    (reset! unique-words (vec cu))))
+(remember-uniques corpus)
+(count @unique-words)
+
+
+(single-article-kwords (tokenize (:content (nth corpus 150))) pref-frequency)
+
+(defn generate-dt-row
+  [document]
+  (let [uniq-num (count @unique-words)]
+    (map (fn [uniq-word] (if (some #(= (key %) uniq-word) document)
+                         (float (/ (document uniq-word) uniq-num))
+                         0.0)) @unique-words)))
+
+(defn prepare-docs-for-dtm
+  ([] (prepare-docs-for-dtm (db/all-articles)))
+  ([corpus] (map #(single-article-kwords (tokenize (:content %)) pref-frequency) corpus)))
 
 (defn source-tf
   "Returns seq of lists with numerically crunched articles -
   ready for matrix"
-  [corpus]
-  (let [uniqs (all-unique corpus)]
-  (map #(calculate-weight (art-kwords %) uniqs) corpus)))
+  [prepared-docs]
+  (map #(generate-dt-row  %) prepared-docs))
 
-(defn dtf-m
-  "Create document term frequency matrix for each article using Neanderthal"
-  ([] (dtf-m (db/all-articles)))
-  ([corpus] (u/dge-matrix (source-tf corpus))))
-
-(defn bin-m
-  "Create bin matrix from given source (list of crunched articles)"
-  ([] (bin-m (db/all-articles)))
-  ([corpus] (u/dge-matrix (to-bin (source-tf corpus)))))
+(defn dt-m
+  "Create document term matrix for each article using Neanderthal"
+  ([] (dt-m (prepare-docs-for-dtm)))
+  ([docs] (u/dge-matrix (source-tf docs))))
 
 (defn train-d
   "Return indices for training and test data. Not yet implemented"
   [percent]
   (let [articles (db/all-articles) train-size (/ (* percent (count articles)) 100)]))
     
+(defn tf
+  "Return single term frequency in given doc"
+  [term doc]
+  (if (some #(= term %) doc)
+    (double (/ ((frequencies doc) term) (count doc)))
+    0.0))
 
+(defn term-count
+  "Return count of single term in document"
+  [term doc]
+  (if (some #(= term %) doc)
+    ((frequencies doc) term)
+    0))
+
+(defn idf
+  "Return idf value of single term in corpus"
+  [term docs]
+  (Math/log (/ (count docs) (apply + (map #(term-count term %) docs)))))
+
+(defn tf-idf
+  "Return tf-idf value for single term in corpus"
+  [term doc docs]
+  (* (tf term doc) (idf term docs)))
+
+(defn source-tf-idf
+  [tokenized-corpus]
+  (let [z tokenized-corpus]
+    (map (fn [y] (map (fn [x] (tf-idf x y z)) y)) z)))
+
+(defn tf-idf-matrix
+  "Create document term matrix for each article using Neanderthal"
+  [prepared-docs] (u/dge-matrix (source-tf-idf prepared-docs)))
+
+(defn kwords-for
+  [index]
+  (into {} (single-article-kwords (tokenize (:content (nth corpus index))) pref-frequency)))
+
+(defn same-kwords
+  [f s]
+  (filter (complement nil?) (map (fn [x] (if (some #(=  % x) (keys (kwords-for s)))
+                  x)) (keys (kwords-for f)))))
