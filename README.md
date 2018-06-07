@@ -1,7 +1,7 @@
 # optim-AI-zer
 
 - Recommender system, RSS Feed corpus preparator
-- More on [optim-AI-zer wiki](https://github.com/masandcomm/optim-ai-zer/wiki/0-Intro)
+- More on [optim-AI-zer wiki](https://github.com/masandcomm/optim-ai-zer/wiki)
 
 
 
