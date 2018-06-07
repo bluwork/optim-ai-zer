@@ -9,7 +9,7 @@
                   :password "optima1"}))
 
 (defentity article
-  (entity-fields :title :link :content))
+  (entity-fields :id :title :link :content))
 
 (defn insert-articles
   "Insert one or more articles in db"

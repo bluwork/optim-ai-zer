@@ -6,6 +6,7 @@
             [optim-ai-zer.prep.corpus :as co]
             [optim-ai-zer.prep.feed :as f]
             [optim-ai-zer.prep.optibase :as db]
+            [optim-ai-zer.charter :as charts]
             [clojure.set :as s]))
 
 (defn -main
@@ -39,11 +40,16 @@
 (defn show-data
   [art-num dtm]
   (let [indices (similar-articles-by-article art-num dtm) docs (db/all-articles)]
-   (take 5 (map (fn [x] {:art-num x
-                        :length (count (:content (nth docs x)))
-                        :same-kwords (let [sk (co/same-kwords art-num x)]
-                                       [(count sk) sk])
+    (take 5 (map (fn [x] {:art-num x
+                          ;;:title (:title (nth docs x))
+                          ;;:length (count (:content (nth docs x)))
+                          :art-kwords (count  (co/same-kwords art-num x))
                         ;;:kwords (keys (co/kwords-for x))
                          }) indices))))
-;;(show-data 1)
+;;(show-data 1 dtm)
+
+;;(charts/show-result (show-data 365 dtm))
+
+;(clojure.pprint/print-table (show-data 200 dtm))
+;(charts/show-kwords (show-data 200 dtm))
 

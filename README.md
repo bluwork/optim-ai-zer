@@ -1,13 +1,13 @@
 # optim-AI-zer
 
 - Recommender system, RSS Feed corpus preparator
-- More on [optim-AI-zer wiki](https://github.com/masandcomm/optim-ai-zer/wiki)
+- More on [optim-AI-zer wiki](https://github.com/masandcomm/optim-ai-zer/wiki/0-Intro)
 
 
 
 ## Installation
 
-  - Install [Intel MKL](https://software.intel.com/en-us/mkl).
+  - Install [Intel MKL](https://software.intel.com/en-us/mkl), needed for [Neanderthal](https://neanderthal.uncomplicate.org/).
   - Clone and lein install [feedparser-clj](https://github.com/scsibug/feedparser-clj).
   - Create user and database in MySQL server  or edit migratus and korma data (first is in project.clj, second in prep/optima.clj).
   - Run lein migratus migrate.

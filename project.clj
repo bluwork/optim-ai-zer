@@ -20,7 +20,8 @@
                  [korma/korma "0.4.3"]
                  [migratus "1.0.6"]
                  [criterium "0.4.4"]
-                 [uncomplicate/neanderthal "0.19.0"]]
+                 [uncomplicate/neanderthal "0.19.0"]
+                 [com.hypirion/clj-xchart "0.2.0"]]
 
 :main optim-ai-zer.core
 
