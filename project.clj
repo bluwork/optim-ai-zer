@@ -21,11 +21,12 @@
                  [migratus "1.0.6"]
                  [criterium "0.4.4"]
                  [uncomplicate/neanderthal "0.19.0"]
-                 [com.hypirion/clj-xchart "0.2.0"]]
+                 [com.hypirion/clj-xchart "0.2.0"]
+                 [hiccup "1.0.5"]]
 
 :main optim-ai-zer.core
 
-  :codox {:metadata {:doc/format :markdown}
+:codox {:metadata {:doc/format :markdown}
           :src-dir-uri "https://github.com/masandcomm/optim-ai-zer/blob/master/"
           :src-linenum-anchor-prefix "L"
           :namespaces [optim-ai-zer.core

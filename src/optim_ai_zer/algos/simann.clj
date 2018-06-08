@@ -9,23 +9,6 @@
             [optim-ai-zer.prep.optibase :as db]
             [uncomplicate.neanderthal.core :refer :all]))
 
-;; 1. Generate random solution
-
-;; 2. Calculate cost of generated solution using some cost function defined ?!
-
-;; 3. Generate a random neighboring solution
-
-;; 4. Calculate the new solution's cost
-
-;; 5. Compare them:
-;; if cost-new < cost-old  -  move to new solution
-;; if cost-new > cost-old - maybe move to the new solution
-
-;; 6. Repeat from 3 to 5 until an acceptable solution is found or maximum numbers
-;;    of iterations is reached
-
-;; Very important parameter - temperature
-
 ;; TSP Traveling Salesman problem
 
 (def cities [{:name "Paris" :x 60 :y 200} {:name "Lyon" :x 180 :y 200} {:name "La Rochelle" :x 80 :y 180}
@@ -76,16 +59,18 @@
       next-sol
       sol)))
 
+(defn check-best
+  [matrix reper sol best]
+  (if (< (u/vec-dist matrix reper sol) (u/vec-dist matrix reper (last @best)))
+    (swap! best conj sol)))
+
 (defn sim-ann-articles!
   "Iterative process for article recommendation system"
   [reper matrix init-temp cr]
-  (let [best (atom [(dec (mrows matrix))])]
+  (let [best (atom [(rand-int (mrows matrix))])]
     (loop [temp init-temp sol (inc reper)]
-      (if (< (u/vec-dist matrix reper sol) (u/vec-dist matrix reper (last @best))) (swap! best conj sol))
+      (check-best matrix reper sol best)
       (if (< temp 1)
         (reverse @best)
         (recur (* temp (- 1 cr)) (calculate-cost matrix reper sol temp) )))))
 
-(defn sim-by-kwords!
-  [kwords matrix init-temp cr]
-  )

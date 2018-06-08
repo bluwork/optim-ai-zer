@@ -15,7 +15,7 @@
   (println (str "Hello! Please use REPL for now :)")))
 
 (defn articles-to-db
-  [provider topic]
+   [provider topic]
   (db/insert-articles (f/art-from provider topic)))
 
 (defn best-tour
@@ -25,31 +25,32 @@
 
 (defn similar-articles-by-article
   [art-num tf-m]
-  (sim/sim-ann-articles! art-num tf-m 5000 0.003))
+  (sim/sim-ann-articles! art-num tf-m 10000 0.003))
 
 (defn article-map
   [art-list corpus]
   (map #(nth corpus %) art-list))
 
-(defn similar-articles-by-words
-  [kwords dt-m]
-  (sim/sim-by-kwords! kwords dt-m 10000 0.002))
-
-;;(time (def dtm (co/dt-m)))
-
 (defn show-data
-  [art-num dtm]
-  (let [indices (similar-articles-by-article art-num dtm) docs (db/all-articles)]
-    (take 5 (map (fn [x] {:art-num x
-                          ;;:title (:title (nth docs x))
-                          ;;:length (count (:content (nth docs x)))
-                          :art-kwords (count  (co/same-kwords art-num x))
-                        ;;:kwords (keys (co/kwords-for x))
-                         }) indices))))
-;;(show-data 1 dtm)
+  [art-num type]
+  (let [indices (similar-articles-by-article art-num co/matrix) docs (db/all-articles)]
+    (cond
+      (= type :graph)(take 5 (map (fn [x] {:art-num x
+                                            :art-kwords (count (co/same-kwords art-num x co/filtered))}) indices))
+      (= type :title)(take 5 (map #(type (nth docs %)) indices))
+      (= type :link) (take 5 (map #(type (nth docs %)) indices))
+      (= type :content) (take 5 (map #(type (nth docs %)) indices))
 
-;;(charts/show-result (show-data 365 dtm))
+      :else (take 10 (map (fn [x]  (nth docs x)) indices)))))
 
-;(clojure.pprint/print-table (show-data 200 dtm))
-;(charts/show-kwords (show-data 200 dtm))
+
+
+(charts/show-result (show-data 0 :graph))
+
+(show-data 0 :title)
+(show-data 0 :link)
+(show-data 0 :content)
+(defn show-art-data
+  [art-num]
+  )
 
