@@ -51,13 +51,13 @@
   [filtered-corpus]
   (set (mapcat #(set %) filtered-corpus)))
 
-(def uniques (corpus-uniques filtered))
+;;(def uniques (corpus-uniques filtered))
 
 (defn idf-uniques
   [uniques filtered-corpus]
   (apply hash-map (mapcat (fn [word] [word (idf word filtered-corpus)]) uniques)))
 
-(time (def idfs (idf-uniques uniques filtered)))
+;;(time (def idfs (idf-uniques uniques filtered)))
 
 (defn generate-dt-row
   [document uniques idfs]
@@ -70,7 +70,7 @@
   [filtered-corpus uniques idfs]
   (u/dge-matrix (map #(generate-dt-row % uniques idfs) filtered-corpus)))
 
-(time (def matrix (dt-m filtered uniques idfs)))
+;;(time (def matrix (dt-m filtered uniques idfs)))
 
 (defn doc-kw
   "Returns kwords for article"

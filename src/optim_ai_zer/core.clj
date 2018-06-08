@@ -43,14 +43,10 @@
 
       :else (take 10 (map (fn [x]  (nth docs x)) indices)))))
 
+;;(charts/show-result (show-data 0 :graph))
 
+;;(show-data 0 :title)
+;;(show-data 0 :link)
+;;(show-data 0 :content)
 
-(charts/show-result (show-data 0 :graph))
-
-(show-data 0 :title)
-(show-data 0 :link)
-(show-data 0 :content)
-(defn show-art-data
-  [art-num]
-  )
 
