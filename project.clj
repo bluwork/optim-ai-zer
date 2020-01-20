@@ -11,18 +11,18 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   
-  :dependencies [[org.clojure/clojure "1.9.0"]
-                 [peco "0.1.5"]
-                 [org.clojars.gnzh/feedparser-clj "0.6.0"]
-                 [org.jsoup/jsoup "1.11.3"]
+  :dependencies [[org.clojure/clojure "1.10.1"]
+                 [peco "0.1.6"]
+                 [org.clojars.gnzh/feedparser-clj "0.6.1"]
+                 [org.jsoup/jsoup "1.12.1"]
                  [clojure.jdbc/clojure.jdbc "0.4.0"]
-                 [mysql/mysql-connector-java "5.1.39"]
+                 [mysql/mysql-connector-java "5.1.48"]
                  [korma/korma "0.4.3"]
-                 [migratus "1.0.6"]
-                 [criterium "0.4.4"]
-                 [uncomplicate/neanderthal "0.19.0"]
+                 [migratus "1.2.7"]
+                 [criterium "0.4.5"]
+                 [uncomplicate/neanderthal "0.26.1"]
                  [com.hypirion/clj-xchart "0.2.0"]
-                 [hiccup "1.0.5"]]
+                 [hiccup "2.0.0-alpha2"]]
 
 :main optim-ai-zer.core
 
@@ -38,7 +38,7 @@
                        optim-ai-zer.utils]
           :output-path "docs"}
 
-  :profiles {:dev {:plugins [[lein-codox "0.9.0"]
+  :profiles {:dev {:plugins [[lein-codox "0.10.7"]
                              [migratus-lein "0.4.1"]]
                    #_:global-vars #_{*warn-on-reflection* true}}}
 
